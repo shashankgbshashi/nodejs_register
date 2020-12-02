@@ -1,10 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
 require("./db/conn");
 const {studentModel} = require("./models/information");
 const bcrypt = require("bcryptjs");
-
+const jwt = require("jsonwebtoken");
 
 // express application
 const app = new express();
@@ -31,6 +32,7 @@ app.use(express.urlencoded({extended:false}));
 
 
 app.get("/", (req,res) => {
+    console.log(req.header);
     res.render("index");
 });
 
@@ -42,9 +44,22 @@ app.post("/register",async(req,res) => {
            phoneNumber : req.body.phoneNumber,
            password : req.body.password
        });
+       
+       const token = await studentInfo.generateToken();
 
        const result = await studentInfo.save();
+
        console.log(result);
+    //    console.log(result._id.toString())
+
+
+    //    const token = await jwt.sign({_id : result._id.toString()},"shashi2000");
+    //    console.log(token);
+
+    //    result.tokens = result.tokens.concat({token : token});
+    //    console.log(result);
+    //    await result.save();
+      
        res.status(200).end("Signed in Successully");
    } catch (error) {
        console.log(`Error is ${error}`);
@@ -67,7 +82,11 @@ app.post("/login" , async(req,res) => {
         // if(studentInfo.password === req.body.password) res.status(201).send("Loged in");
         // else res.status(404).send("Email and password are incorrect");
         const isMatch = await bcrypt.compare(req.body.password , studentInfo.password);
-        if(isMatch) res.status(200).render("home");
+        if(isMatch){
+            const token = await studentInfo.generateToken();
+
+            res.status(200).render("home");
+        }
         else res.status(404).render("login");
 
 

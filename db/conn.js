@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-mongoose.connect("mongodb://localhost:27017/register",{
+mongoose.connect(process.env.DB_NAME,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
     createIndexes : true

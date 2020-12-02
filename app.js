@@ -6,7 +6,10 @@ require("./db/conn");
 const {studentModel} = require("./models/information");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+<<<<<<< HEAD
 const cookieParser = require("cookie-parser");
+=======
+>>>>>>> parent of 6c7747d... after adding jwt in cookie and getting jwt rom cookie
 
 // express application
 const app = new express();
@@ -92,8 +95,11 @@ app.post("/login" , async(req,res) => {
         if(isMatch){
             const token = await studentInfo.generateToken();
 
+<<<<<<< HEAD
             res.cookie("jwt",token);
 
+=======
+>>>>>>> parent of 6c7747d... after adding jwt in cookie and getting jwt rom cookie
             res.status(200).render("home");
         }
         else res.status(404).render("login");

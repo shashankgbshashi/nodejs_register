@@ -6,6 +6,8 @@ require("./db/conn");
 const {studentModel} = require("./models/information");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+
 
 // express application
 const app = new express();
@@ -27,6 +29,7 @@ hbs.registerPartials(partialPathFile);
 // We can also use body-parser instead of express.json()
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
+app.use(cookieParser);
 
 
 
@@ -50,6 +53,7 @@ app.post("/register",async(req,res) => {
        const result = await studentInfo.save();
 
        console.log(result);
+       res.cookie("jwt_cookie",token);
     //    console.log(result._id.toString())
 
 
@@ -60,7 +64,7 @@ app.post("/register",async(req,res) => {
     //    console.log(result);
     //    await result.save();
       
-       res.status(200).end("Signed in Successully");
+       res.status(200).end("home");
    } catch (error) {
        console.log(`Error is ${error}`);
        res.status(404).send("error");
@@ -85,6 +89,8 @@ app.post("/login" , async(req,res) => {
         if(isMatch){
             const token = await studentInfo.generateToken();
 
+            res.cookie("jwt_cookie",token);
+
             res.status(200).render("home");
         }
         else res.status(404).render("login");
@@ -94,6 +100,10 @@ app.post("/login" , async(req,res) => {
     } catch (error) {
         console.log(`Error in getting infor : ${error}`);
     }
+})
+
+app.get("/testing",(req,res) => {
+    console.log(`JWT toekn getting from client is ${req.cookie.jwt_cookie}`);
 })
 
 

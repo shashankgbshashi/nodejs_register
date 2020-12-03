@@ -6,10 +6,10 @@ require("./db/conn");
 const {studentModel} = require("./models/information");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-<<<<<<< HEAD
+
 const cookieParser = require("cookie-parser");
-=======
->>>>>>> parent of 6c7747d... after adding jwt in cookie and getting jwt rom cookie
+
+
 
 // express application
 const app = new express();
@@ -34,13 +34,30 @@ app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
 
+
+let auth = async function(req,res,next){
+    try {
+        console.log(req.cookies.jwt)
+        let token = await jwt.verify(req.cookies.jwt,process.env.SECRET_KEY);
+        console.log(`Token obtained from jwt is ${token._id}`);
+        const user = await studentModel.findById(token._id);
+        console.log(user);
+        next();
+    } catch (error) {
+        res.status(404).send(error);
+    }
+}
+
+
 app.get("/", (req,res) => {
     console.log(req.header);
     res.render("index");
 });
 
-app.get("/testing",(req,res)=> {
-    console.log(req.cookie.jwt);
+app.get("/testing",auth,(req,res)=> {
+    //console.log(req);
+    //console.log(req.cookies.jwt);
+   res.send("hello");
     
 })
 
@@ -87,7 +104,7 @@ app.post("/login" , async(req,res) => {
         const studentInfo = await studentModel.findOne({
             email : req.body.email
         });
-        console.log(studentInfo);
+        //console.log(studentInfo);
         if(studentInfo == null) res.status(401).send("Email and passowrd are inCorrect");
         // if(studentInfo.password === req.body.password) res.status(201).send("Loged in");
         // else res.status(404).send("Email and password are incorrect");
@@ -95,11 +112,11 @@ app.post("/login" , async(req,res) => {
         if(isMatch){
             const token = await studentInfo.generateToken();
 
-<<<<<<< HEAD
-            res.cookie("jwt",token);
 
-=======
->>>>>>> parent of 6c7747d... after adding jwt in cookie and getting jwt rom cookie
+            res.cookie("jwt",token);
+        //    console.log(cookie);
+
+
             res.status(200).render("home");
         }
         else res.status(404).render("login");

@@ -42,6 +42,8 @@ let auth = async function(req,res,next){
         console.log(`Token obtained from jwt is ${token._id}`);
         const user = await studentModel.findById(token._id);
         console.log(user);
+        req.user = user;
+        req.token = req.cookies.jwt;
         next();
     } catch (error) {
         res.status(404).send(error);
@@ -125,6 +127,48 @@ app.post("/login" , async(req,res) => {
 
     } catch (error) {
         console.log(`Error in getting infor : ${error}`);
+    }
+})
+
+app.get("/logout",auth, async(req,res)=> {
+    try {
+        
+        res.clearCookie("jwt");
+
+        // delete that particular token from db (single device logout)
+
+        // let tokens = [];
+        // console.log(req.user.tokens.length);
+
+        // for(let i = 0;i<req.user.tokens.length;i++)
+        // {
+        //     console.log(req.user.tokens[i].token === req.token);
+        //     if(req.user.tokens[i].token === req.token) continue;
+
+        //     tokens.push(req.user.tokens[i]);
+        // }
+
+        // console.log(tokens);
+
+        // req.user.tokens =  tokens;
+
+        // await req.user.save();
+
+
+
+        // to logout from all devices;
+
+
+        req.user.tokens = [];
+
+        await req.user.save();
+
+        console.log(req.user);
+
+        res.render("login");
+
+    } catch (error) {
+        
     }
 })
 
